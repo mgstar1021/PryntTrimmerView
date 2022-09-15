@@ -119,7 +119,7 @@ extension VideoTrimmerViewController: TrimmerViewDelegate {
         stopPlaybackTimeChecker()
         player?.pause()
         player?.seek(to: playerTime, toleranceBefore: CMTime.zero, toleranceAfter: CMTime.zero)
-        let duration = (trimmerView.endTime! - trimmerView.startTime!).seconds
-        print(duration)
+//        let duration = (trimmerView.endTime! - trimmerView.startTime!).seconds
+//        print(duration)
     }
 }

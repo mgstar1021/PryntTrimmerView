@@ -22,6 +22,11 @@ public protocol TrimmerViewDelegate: AnyObject {
 @IBDesignable public class TrimmerView: AVAssetTimeSelector {
 
     // MARK: - Properties
+    private var leftPanGestureRecognizer: UIPanGestureRecognizer?
+    private var rightPanGestureRecognizer: UIPanGestureRecognizer?
+    
+    private var leftLongTapGestureRecognizer: UILongPressGestureRecognizer?
+    private var rightLongTapGestureRecognizer: UILongPressGestureRecognizer?
 
     // MARK: Color Customization
 
@@ -68,6 +73,9 @@ public protocol TrimmerViewDelegate: AnyObject {
     private let rightHandleKnob = UIView()
     private let leftMaskView = UIView()
     private let rightMaskView = UIView()
+    private let leftDurationView = DurationView()
+    private let rightDurationView = DurationView()
+    private let totalDurationLabel = UILabel()
 
     // MARK: Constraints
 
@@ -81,13 +89,16 @@ public protocol TrimmerViewDelegate: AnyObject {
 
     /// The minimum duration allowed for the trimming. The handles won't pan further if the minimum duration is attained.
     public var minDuration: Double = 3
+    
+    private let totalDurationTopSpacing: CGFloat = 16
 
     // MARK: - View & constraints configurations
 
     override func setupSubviews() {
+        setupTotalDurationLabel()
+        
         super.setupSubviews()
         layer.cornerRadius = 2
-        layer.masksToBounds = true
         backgroundColor = UIColor.clear
         layer.zPosition = 1
         setupTrimmerView()
@@ -97,13 +108,14 @@ public protocol TrimmerViewDelegate: AnyObject {
         setupGestures()
         updateMainColor()
         updateHandleColor()
+        setupDurationViews()
     }
 
     override func constrainAssetPreview() {
         assetPreview.leftAnchor.constraint(equalTo: leftAnchor, constant: handleWidth).isActive = true
         assetPreview.rightAnchor.constraint(equalTo: rightAnchor, constant: -handleWidth).isActive = true
         assetPreview.topAnchor.constraint(equalTo: topAnchor).isActive = true
-        assetPreview.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
+        assetPreview.bottomAnchor.constraint(equalTo: totalDurationLabel.topAnchor, constant: -totalDurationTopSpacing).isActive = true
     }
 
     private func setupTrimmerView() {
@@ -114,7 +126,7 @@ public protocol TrimmerViewDelegate: AnyObject {
         addSubview(trimView)
 
         trimView.topAnchor.constraint(equalTo: topAnchor).isActive = true
-        trimView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
+        trimView.bottomAnchor.constraint(equalTo: totalDurationLabel.topAnchor, constant: -totalDurationTopSpacing).isActive = true
         leftConstraint = trimView.leftAnchor.constraint(equalTo: leftAnchor)
         rightConstraint = trimView.rightAnchor.constraint(equalTo: rightAnchor)
         leftConstraint?.isActive = true
@@ -128,15 +140,15 @@ public protocol TrimmerViewDelegate: AnyObject {
         leftHandleView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(leftHandleView)
 
-        leftHandleView.heightAnchor.constraint(equalTo: heightAnchor).isActive = true
+        leftHandleView.heightAnchor.constraint(equalTo: trimView.heightAnchor).isActive = true
         leftHandleView.widthAnchor.constraint(equalToConstant: handleWidth).isActive = true
         leftHandleView.leftAnchor.constraint(equalTo: trimView.leftAnchor).isActive = true
-        leftHandleView.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
+        leftHandleView.centerYAnchor.constraint(equalTo: trimView.centerYAnchor).isActive = true
 
         leftHandleKnob.translatesAutoresizingMaskIntoConstraints = false
         leftHandleView.addSubview(leftHandleKnob)
 
-        leftHandleKnob.heightAnchor.constraint(equalTo: heightAnchor, multiplier: 0.5).isActive = true
+        leftHandleKnob.heightAnchor.constraint(equalTo: leftHandleView.heightAnchor, multiplier: 0.5).isActive = true
         leftHandleKnob.widthAnchor.constraint(equalToConstant: 2).isActive = true
         leftHandleKnob.centerYAnchor.constraint(equalTo: leftHandleView.centerYAnchor).isActive = true
         leftHandleKnob.centerXAnchor.constraint(equalTo: leftHandleView.centerXAnchor).isActive = true
@@ -146,18 +158,28 @@ public protocol TrimmerViewDelegate: AnyObject {
         rightHandleView.translatesAutoresizingMaskIntoConstraints = false
         addSubview(rightHandleView)
 
-        rightHandleView.heightAnchor.constraint(equalTo: heightAnchor).isActive = true
+        rightHandleView.heightAnchor.constraint(equalTo: trimView.heightAnchor).isActive = true
         rightHandleView.widthAnchor.constraint(equalToConstant: handleWidth).isActive = true
         rightHandleView.rightAnchor.constraint(equalTo: trimView.rightAnchor).isActive = true
-        rightHandleView.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
+        rightHandleView.centerYAnchor.constraint(equalTo: trimView.centerYAnchor).isActive = true
 
         rightHandleKnob.translatesAutoresizingMaskIntoConstraints = false
         rightHandleView.addSubview(rightHandleKnob)
 
-        rightHandleKnob.heightAnchor.constraint(equalTo: heightAnchor, multiplier: 0.5).isActive = true
+        rightHandleKnob.heightAnchor.constraint(equalTo: rightHandleView.heightAnchor, multiplier: 0.5).isActive = true
         rightHandleKnob.widthAnchor.constraint(equalToConstant: 2).isActive = true
         rightHandleKnob.centerYAnchor.constraint(equalTo: rightHandleView.centerYAnchor).isActive = true
         rightHandleKnob.centerXAnchor.constraint(equalTo: rightHandleView.centerXAnchor).isActive = true
+        
+        leftHandleView.addSubview(leftDurationView)
+        leftDurationView.centerXAnchor.constraint(equalTo: leftHandleView.centerXAnchor).isActive = true
+        leftDurationView.bottomAnchor.constraint(equalTo: leftHandleView.topAnchor, constant: -4).isActive = true
+        leftDurationView.alpha = 0
+        
+        rightHandleView.addSubview(rightDurationView)
+        rightDurationView.centerXAnchor.constraint(equalTo: rightHandleView.centerXAnchor).isActive = true
+        rightDurationView.bottomAnchor.constraint(equalTo: rightHandleView.topAnchor, constant: -4).isActive = true
+        rightDurationView.alpha = 0
     }
 
     private func setupMaskView() {
@@ -169,7 +191,7 @@ public protocol TrimmerViewDelegate: AnyObject {
         insertSubview(leftMaskView, belowSubview: leftHandleView)
 
         leftMaskView.leftAnchor.constraint(equalTo: leftAnchor).isActive = true
-        leftMaskView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
+        leftMaskView.bottomAnchor.constraint(equalTo: totalDurationLabel.topAnchor, constant: -totalDurationTopSpacing).isActive = true
         leftMaskView.topAnchor.constraint(equalTo: topAnchor).isActive = true
         leftMaskView.rightAnchor.constraint(equalTo: leftHandleView.centerXAnchor).isActive = true
 
@@ -180,7 +202,7 @@ public protocol TrimmerViewDelegate: AnyObject {
         insertSubview(rightMaskView, belowSubview: rightHandleView)
 
         rightMaskView.rightAnchor.constraint(equalTo: rightAnchor).isActive = true
-        rightMaskView.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
+        rightMaskView.bottomAnchor.constraint(equalTo: totalDurationLabel.topAnchor, constant: -totalDurationTopSpacing).isActive = true
         rightMaskView.topAnchor.constraint(equalTo: topAnchor).isActive = true
         rightMaskView.leftAnchor.constraint(equalTo: rightHandleView.centerXAnchor).isActive = true
     }
@@ -195,19 +217,45 @@ public protocol TrimmerViewDelegate: AnyObject {
         positionBar.isUserInteractionEnabled = false
         addSubview(positionBar)
 
-        positionBar.centerYAnchor.constraint(equalTo: centerYAnchor).isActive = true
+        positionBar.centerYAnchor.constraint(equalTo: trimView.centerYAnchor).isActive = true
         positionBar.widthAnchor.constraint(equalToConstant: 3).isActive = true
-        positionBar.heightAnchor.constraint(equalTo: heightAnchor).isActive = true
+        positionBar.heightAnchor.constraint(equalTo: trimView.heightAnchor).isActive = true
         positionConstraint = positionBar.leftAnchor.constraint(equalTo: leftHandleView.rightAnchor, constant: 0)
         positionConstraint?.isActive = true
+    }
+    
+    private func setupTotalDurationLabel() {
+        totalDurationLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        addSubview(totalDurationLabel)
+        totalDurationLabel.leftAnchor.constraint(equalTo: leftAnchor).isActive = true
+        totalDurationLabel.rightAnchor.constraint(equalTo: rightAnchor, constant: -handleWidth).isActive = true
+        totalDurationLabel.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
+        totalDurationLabel.heightAnchor.constraint(equalToConstant: 15).isActive = true
     }
 
     private func setupGestures() {
 
-        let leftPanGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(TrimmerView.handlePanGesture))
-        leftHandleView.addGestureRecognizer(leftPanGestureRecognizer)
-        let rightPanGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(TrimmerView.handlePanGesture))
-        rightHandleView.addGestureRecognizer(rightPanGestureRecognizer)
+        leftPanGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(TrimmerView.handlePanGesture))
+        leftHandleView.addGestureRecognizer(leftPanGestureRecognizer!)
+        rightPanGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(TrimmerView.handlePanGesture))
+        rightHandleView.addGestureRecognizer(rightPanGestureRecognizer!)
+        
+        leftLongTapGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(TrimmerView.handleLongTapGesture))
+        leftHandleView.addGestureRecognizer(leftLongTapGestureRecognizer!)
+        rightLongTapGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(TrimmerView.handleLongTapGesture))
+        rightHandleView.addGestureRecognizer(rightLongTapGestureRecognizer!)
+        
+        leftPanGestureRecognizer?.delegate = self
+        rightPanGestureRecognizer?.delegate = self
+        
+        leftLongTapGestureRecognizer?.minimumPressDuration = 0.2
+        leftLongTapGestureRecognizer?.delaysTouchesBegan = true
+        leftLongTapGestureRecognizer?.delegate = self
+        
+        rightLongTapGestureRecognizer?.minimumPressDuration = 0.2
+        rightLongTapGestureRecognizer?.delaysTouchesBegan = true
+        rightLongTapGestureRecognizer?.delegate = self
     }
 
     private func updateMainColor() {
@@ -220,19 +268,66 @@ public protocol TrimmerViewDelegate: AnyObject {
         leftHandleKnob.backgroundColor = handleColor
         rightHandleKnob.backgroundColor = handleColor
     }
+    
+    private func setupDurationViews() {
+        leftDurationView.updateBackground(color: handleColor)
+        leftDurationView.updateText(color: .white)
+        leftDurationView.font(size: 14)
+        
+        rightDurationView.updateBackground(color: handleColor)
+        rightDurationView.updateText(color: .white)
+        rightDurationView.font(size: 14)
+        
+        totalDurationLabel.textColor = handleColor
+        totalDurationLabel.font = .systemFont(ofSize: 14)
+        totalDurationLabel.textAlignment = .right
+    }
+   
+    func setTotalDuration(_ time: CMTime) {
+        totalDurationLabel.text = "Total: \(time.durationText)"
+    }
 
     // MARK: - Trim Gestures
 
+    @objc func handleLongTapGesture(_ gestureRecognizer: UIPanGestureRecognizer) {
+        guard let view = gestureRecognizer.view else { return }
+        
+        let isLeftGesture = view == leftHandleView
+        
+        switch gestureRecognizer.state {
+        case .began:
+            if isLeftGesture {
+                if let startTime = startTime {
+                    leftDurationView.setDuration(startTime)
+                }
+                leftDurationView.set(visable: true)
+            } else {
+                if let endTime = endTime {
+                    rightDurationView.setDuration(endTime)
+                }
+                rightDurationView.set(visable: true)
+            }
+        case .ended, .cancelled, .failed:
+            isLeftGesture ? leftDurationView.set(visable: false) : rightDurationView.set(visable: false)
+        default:
+            break
+        }
+   
+    }
+    
     @objc func handlePanGesture(_ gestureRecognizer: UIPanGestureRecognizer) {
         guard let view = gestureRecognizer.view, let superView = gestureRecognizer.view?.superview else { return }
         let isLeftGesture = view == leftHandleView
+        
         switch gestureRecognizer.state {
 
         case .began:
             if isLeftGesture {
                 currentLeftConstraint = leftConstraint!.constant
+                leftDurationView.set(visable: true)
             } else {
                 currentRightConstraint = rightConstraint!.constant
+                rightDurationView.set(visable: true)
             }
             updateSelectedTime(stoppedMoving: false)
         case .changed:
@@ -252,6 +347,7 @@ public protocol TrimmerViewDelegate: AnyObject {
 
         case .cancelled, .ended, .failed:
             updateSelectedTime(stoppedMoving: true)
+            isLeftGesture ? leftDurationView.set(visable: false) : rightDurationView.set(visable: false)
         default: break
         }
     }
@@ -273,6 +369,10 @@ public protocol TrimmerViewDelegate: AnyObject {
     override func assetDidChange(newAsset: AVAsset?) {
         super.assetDidChange(newAsset: newAsset)
         resetHandleViewPosition()
+        
+        guard let endTime = endTime, let startTime = startTime else { return }
+        
+        setTotalDuration((endTime - startTime))
     }
 
     private func resetHandleViewPosition() {
@@ -316,7 +416,13 @@ public protocol TrimmerViewDelegate: AnyObject {
             delegate?.positionBarStoppedMoving(playerTime)
         } else {
             delegate?.didChangePositionBar(playerTime)
+            
+            let duration = endTime! - startTime!
+            setTotalDuration(duration)
         }
+        
+        leftDurationView.setDuration(playerTime)
+        rightDurationView.setDuration(playerTime)
     }
 
     private var positionBarTime: CMTime? {
@@ -342,5 +448,16 @@ public protocol TrimmerViewDelegate: AnyObject {
     }
     public func scrollViewDidScroll(_ scrollView: UIScrollView) {
         updateSelectedTime(stoppedMoving: false)
+    }
+}
+
+
+// MARK: - UIGestureRecognizerDelegate
+extension TrimmerView: UIGestureRecognizerDelegate {
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        let isLeftGestures = gestureRecognizer == leftLongTapGestureRecognizer && otherGestureRecognizer == leftPanGestureRecognizer
+        let isRightGestures = gestureRecognizer == rightLongTapGestureRecognizer && otherGestureRecognizer == rightPanGestureRecognizer
+        
+        return (isLeftGestures || isRightGestures)
     }
 }

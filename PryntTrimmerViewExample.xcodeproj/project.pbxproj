@@ -25,6 +25,7 @@
 		ABBCDAFC24BE101700A4BF18 /* AVPlayer+isPlaying.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBCDAF824BE101700A4BF18 /* AVPlayer+isPlaying.swift */; };
 		ABBCDAFF24BE109500A4BF18 /* PryntTrimmerView in Frameworks */ = {isa = PBXBuildFile; productRef = ABBCDAFE24BE109500A4BF18 /* PryntTrimmerView */; };
 		ABBCDB0124BE11FD00A4BF18 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABBCDB0024BE11FD00A4BF18 /* SceneDelegate.swift */; };
+		BCD9FF7A28D321AF00A2F641 /* DurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD9FF7928D321AF00A2F641 /* DurationView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +49,7 @@
 		ABBCDAF724BE101700A4BF18 /* VideoTrimmerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VideoTrimmerViewController.swift; sourceTree = "<group>"; };
 		ABBCDAF824BE101700A4BF18 /* AVPlayer+isPlaying.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AVPlayer+isPlaying.swift"; sourceTree = "<group>"; };
 		ABBCDB0024BE11FD00A4BF18 /* SceneDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		BCD9FF7928D321AF00A2F641 /* DurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DurationView.swift; sourceTree = "<group>"; };
 		CFB9DEE12511F968005EB79B /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -158,6 +160,7 @@
 			children = (
 				AB4C681E24BE24E000518B1A /* HandlerView.swift */,
 				AB4C681F24BE24E000518B1A /* PryntTrimmerView.swift */,
+				BCD9FF7928D321AF00A2F641 /* DurationView.swift */,
 			);
 			path = Trimmer;
 			sourceTree = "<group>";
@@ -302,6 +305,7 @@
 				AB4C682424BE24E000518B1A /* VideoScrollView.swift in Sources */,
 				AB4C682624BE24E000518B1A /* HandlerView.swift in Sources */,
 				AB4C682124BE24E000518B1A /* AVAssetTimeSelector.swift in Sources */,
+				BCD9FF7A28D321AF00A2F641 /* DurationView.swift in Sources */,
 				AB4C682224BE24E000518B1A /* ThumbSelectorView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
