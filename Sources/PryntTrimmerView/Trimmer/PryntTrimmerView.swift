@@ -75,7 +75,6 @@ public protocol TrimmerViewDelegate: AnyObject {
     private let rightMaskView = UIView()
     private let leftDurationView = DurationView()
     private let rightDurationView = DurationView()
-//    private let totalDurationLabel = UILabel()
 
     // MARK: Constraints
 
@@ -95,8 +94,6 @@ public protocol TrimmerViewDelegate: AnyObject {
     // MARK: - View & constraints configurations
 
     override func setupSubviews() {
-//        setupTotalDurationLabel()
-        
         super.setupSubviews()
         layer.cornerRadius = 2
         backgroundColor = UIColor.clear
@@ -183,7 +180,6 @@ public protocol TrimmerViewDelegate: AnyObject {
     }
 
     private func setupMaskView() {
-
         leftMaskView.isUserInteractionEnabled = false
         leftMaskView.backgroundColor = .white
         leftMaskView.alpha = 0.7
@@ -224,16 +220,6 @@ public protocol TrimmerViewDelegate: AnyObject {
         positionConstraint?.isActive = true
     }
     
-//    private func setupTotalDurationLabel() {
-//        totalDurationLabel.translatesAutoresizingMaskIntoConstraints = false
-//
-//        addSubview(totalDurationLabel)
-//        totalDurationLabel.leftAnchor.constraint(equalTo: leftAnchor).isActive = true
-//        totalDurationLabel.rightAnchor.constraint(equalTo: rightAnchor, constant: -handleWidth).isActive = true
-//        totalDurationLabel.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
-//        totalDurationLabel.heightAnchor.constraint(equalToConstant: 15).isActive = true
-//    }
-
     private func setupGestures() {
 
         leftPanGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(TrimmerView.handlePanGesture))
@@ -277,16 +263,8 @@ public protocol TrimmerViewDelegate: AnyObject {
         rightDurationView.updateBackground(color: handleColor)
         rightDurationView.updateText(color: .white)
         rightDurationView.font(size: 14)
-        
-//        totalDurationLabel.textColor = handleColor
-//        totalDurationLabel.font = .systemFont(ofSize: 14)
-//        totalDurationLabel.textAlignment = .right
     }
    
-//    func setTotalDuration(_ time: CMTime) {
-//        totalDurationLabel.text = "Total: \(time.durationText)"
-//    }
-
     // MARK: - Trim Gestures
 
     @objc func handleLongTapGesture(_ gestureRecognizer: UIPanGestureRecognizer) {
@@ -381,10 +359,6 @@ public protocol TrimmerViewDelegate: AnyObject {
     override func assetDidChange(newAsset: AVAsset?) {
         super.assetDidChange(newAsset: newAsset)
         resetHandleViewPosition()
-        
-//        guard let endTime = endTime, let startTime = startTime else { return }
-//
-//        setTotalDuration((endTime - startTime))
     }
 
     private func resetHandleViewPosition() {
@@ -417,7 +391,6 @@ public protocol TrimmerViewDelegate: AnyObject {
     /// The selected end time for the current asset.
     public var endTime: CMTime? {
         let endPosition = rightHandleView.frame.origin.x + assetPreview.contentOffset.x - handleWidth
-        print(getTime(from: endPosition)?.durationText)
         return getTime(from: endPosition)
     }
 
@@ -429,9 +402,6 @@ public protocol TrimmerViewDelegate: AnyObject {
             delegate?.positionBarStoppedMoving(playerTime)
         } else {
             delegate?.didChangePositionBar(playerTime)
-            
-//            let duration = endTime! - startTime!
-//            setTotalDuration(duration)
         }
         
         leftDurationView.setDuration(playerTime)
