@@ -28,6 +28,8 @@ class VideoTrimmerViewController: AssetSelectionViewController {
         super.viewDidLoad()
         trimmerView.handleColor = UIColor.white
         trimmerView.mainColor = UIColor.darkGray
+        trimmerView.maxDuration = 30.0
+        trimmerView.minDuration = 1.0
     }
 
     @IBAction func selectAsset(_ sender: Any) {
