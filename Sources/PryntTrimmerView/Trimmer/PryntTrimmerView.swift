@@ -399,6 +399,7 @@ public protocol TrimmerViewDelegate: AnyObject {
         if let newPosition = getPosition(from: time) {
             updateLeftConstraint(with: CGPoint(x: newPosition - currentLeftConstraint, y: 0))
             updateSelectedTime(stoppedMoving: false)
+            layoutIfNeeded()
         }
     }
 
@@ -407,6 +408,7 @@ public protocol TrimmerViewDelegate: AnyObject {
         if let newPosition = getPosition(from: time) {
             updateRightConstraint(with: CGPoint(x: newPosition - frame.width - currentRightConstraint + 2 * handleWidth, y: 0))
             updateSelectedTime(stoppedMoving: false)
+            layoutIfNeeded()
         }
     }
     
